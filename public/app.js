@@ -688,6 +688,203 @@ document.getElementById("accountSelector").addEventListener("change", () => {
 });
 
 document.getElementById("refreshBtn").addEventListener("click", loadAllData);
+// 
+// modal
+// 
+// ==========================================================
+// UNIVERSAL TRANSACTION MODAL (OPTION B)
+// ==========================================================
+let modalData = [];
+let modalPage = 1;
+const modalPageSize = 25;
+
+function buildUnifiedTransactions() {
+  const txns = [];
+
+  // Expenses
+  expenseData.forEach(r => {
+    txns.push({
+      Date: r.Date || "",
+      Month: r.Month || "",
+      Type: "EXPENSE",
+      Mode: r.Mode || "",
+      From: "",
+      To: "",
+      Item: r.Item || "",
+      Group: r.Group || "",
+      SubGroup: r.SubGroup || "",
+      Narration: r.Narration || "",
+      Amount: toNumber(r.Amount)
+    });
+  });
+
+  // Receipts
+  receiptData.forEach(r => {
+    txns.push({
+      Date: r.Date || "",
+      Month: r.Month || "",
+      Type: "RECEIPT",
+      Mode: r.Mode || "",
+      From: r.From || "",
+      To: "",
+      Item: "",
+      Group: "",
+      SubGroup: "",
+      Narration: "",
+      Amount: toNumber(r.Amount)
+    });
+  });
+
+  // Contra
+  contraData.forEach(r => {
+    const amt = toNumber(r.Amount);
+
+    // Contra OUT (from)
+    txns.push({
+      Date: r.Date || "",
+      Month: r.Month || "",
+      Type: "CONTRA_OUT",
+      Mode: r.From || "",
+      From: r.From || "",
+      To: r.To || "",
+      Item: "",
+      Group: "",
+      SubGroup: "",
+      Narration: "",
+      Amount: amt
+    });
+
+    // Contra IN (to)
+    txns.push({
+      Date: r.Date || "",
+      Month: r.Month || "",
+      Type: "CONTRA_IN",
+      Mode: r.To || "",
+      From: r.From || "",
+      To: r.To || "",
+      Item: "",
+      Group: "",
+      SubGroup: "",
+      Narration: "",
+      Amount: amt
+    });
+  });
+
+  return txns;
+}
+
+function applyModalFilters(data) {
+  const q = document.getElementById("txnSearchBox").value.trim().toLowerCase();
+  const typeFilter = document.getElementById("txnTypeFilter").value;
+
+  let filtered = [...data];
+
+  if (typeFilter !== "ALL") {
+    filtered = filtered.filter(r => r.Type === typeFilter);
+  }
+
+  if (q) {
+    filtered = filtered.filter(r =>
+      Object.values(r).join(" ").toLowerCase().includes(q)
+    );
+  }
+
+  return filtered;
+}
+
+function applyModalSorting(data) {
+  const sortValue = document.getElementById("txnSort").value;
+  let sorted = [...data];
+
+  if (sortValue === "date_desc") sorted.sort((a, b) => parseDateValue(b.Date) - parseDateValue(a.Date));
+  if (sortValue === "date_asc") sorted.sort((a, b) => parseDateValue(a.Date) - parseDateValue(b.Date));
+  if (sortValue === "amount_desc") sorted.sort((a, b) => b.Amount - a.Amount);
+  if (sortValue === "amount_asc") sorted.sort((a, b) => a.Amount - b.Amount);
+
+  return sorted;
+}
+
+function renderModalTable() {
+  let filtered = applyModalFilters(modalData);
+  filtered = applyModalSorting(filtered);
+
+  const maxPages = Math.max(1, Math.ceil(filtered.length / modalPageSize));
+  if (modalPage > maxPages) modalPage = maxPages;
+  if (modalPage < 1) modalPage = 1;
+
+  const start = (modalPage - 1) * modalPageSize;
+  const pageRows = filtered.slice(start, start + modalPageSize);
+
+  document.getElementById("txnRowCount").innerText = `Rows: ${filtered.length}`;
+  document.getElementById("txnPageInfo").innerText = `Page ${modalPage} of ${maxPages}`;
+
+  const tbody = document.getElementById("txnModalTable");
+  tbody.innerHTML = "";
+
+  pageRows.forEach(r => {
+    tbody.innerHTML += `
+      <tr>
+        <td>${r.Date}</td>
+        <td>${r.Month}</td>
+        <td><span class="badge bg-primary">${r.Type}</span></td>
+        <td>${r.Mode}</td>
+        <td>${r.From}</td>
+        <td>${r.To}</td>
+        <td>${r.Item}</td>
+        <td>${r.Group}</td>
+        <td>${r.SubGroup}</td>
+        <td>${r.Narration}</td>
+        <td class="text-end">${money(r.Amount)}</td>
+      </tr>
+    `;
+  });
+
+  if (pageRows.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="11" class="text-center">No records found</td></tr>`;
+  }
+}
+
+function openTransactionModal(title, filteredRows) {
+  document.getElementById("txnModalTitle").innerText = title;
+
+  modalData = filteredRows;
+  modalPage = 1;
+
+  document.getElementById("txnSearchBox").value = "";
+  document.getElementById("txnTypeFilter").value = "ALL";
+  document.getElementById("txnSort").value = "date_desc";
+
+  renderModalTable();
+
+  const modal = new bootstrap.Modal(document.getElementById("txnModal"));
+  modal.show();
+}
+
+// Modal Events
+document.getElementById("txnSearchBox").addEventListener("input", () => {
+  modalPage = 1;
+  renderModalTable();
+});
+
+document.getElementById("txnTypeFilter").addEventListener("change", () => {
+  modalPage = 1;
+  renderModalTable();
+});
+
+document.getElementById("txnSort").addEventListener("change", () => {
+  modalPage = 1;
+  renderModalTable();
+});
+
+document.getElementById("txnPrevBtn").addEventListener("click", () => {
+  modalPage--;
+  renderModalTable();
+});
+
+document.getElementById("txnNextBtn").addEventListener("click", () => {
+  modalPage++;
+  renderModalTable();
+});
 
 // ==========================================================
 // INITIAL LOAD
