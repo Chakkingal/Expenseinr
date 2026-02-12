@@ -377,7 +377,7 @@ function updateModeBalances() {
 
     container.innerHTML += `
       <div class="col-6 col-md-3">
-        <div class="card p-3">
+         <div class="card p-3" style="cursor:pointer;" onclick="showModeDetails('${mode.replace(/'/g, "\\'")}')">
           <div class="summary-title">${mode}</div>
           <div class="summary-value">${money(val)}</div>
           <div class="small-muted">OB: ${money(ob)}</div>
@@ -885,6 +885,12 @@ document.getElementById("txnNextBtn").addEventListener("click", () => {
   modalPage++;
   renderModalTable();
 });
+window.showModeDetails = function(modeName) {
+  const allTxns = buildUnifiedTransactions();
+  const filtered = allTxns.filter(r => (r.Mode || "").trim() === modeName.trim());
+
+  openTransactionModal(`📌 Transactions for: ${modeName}`, filtered);
+};
 
 // ==========================================================
 // INITIAL LOAD
