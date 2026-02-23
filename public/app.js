@@ -30,6 +30,15 @@ const datasetCache = {
   INDIA: null,
   UAE: null
 };
+
+
+// ==========================================================
+// RECEIPT LOCK
+// ==========================================================
+
+let receiptsUnlocked = false;
+const RECEIPT_PASSWORD = "1234";
+
 // added 23/02/2026
 
 
@@ -467,6 +476,25 @@ function updateExpenseTable() {
 }
 
 function updateReceiptTable() {
+// added 23/02/2026
+if (!receiptsUnlocked) {
+
+  const tbody = document.getElementById("receiptTable");
+
+  tbody.innerHTML = `
+    <tr>
+      <td colspan="5" class="text-center">
+        🔒 Receipts locked. Click Unlock to view.
+      </td>
+    </tr>
+  `;
+
+  return;
+}
+
+  // 
+
+  
   let rec = applyFilters(receiptData, "receipt");
   rec = applySorting(rec, document.getElementById("receiptSort").value);
 
@@ -942,6 +970,23 @@ window.showModeDetails = function(modeName) {
   openTransactionModal(`📌 Transactions for: ${modeName}`, filtered);
 };
 
+// added 23/02/2026
+window.unlockReceipts = function () {
+
+  const pass = prompt("Enter password to view receipts");
+
+  if (pass === RECEIPT_PASSWORD) {
+
+    receiptsUnlocked = true;
+    updateReceiptTable();
+
+  } else {
+
+    alert("Incorrect password");
+
+  }
+};
+// added 26/02/2026
 // ==========================================================
 // INITIAL LOAD
 // ==========================================================
