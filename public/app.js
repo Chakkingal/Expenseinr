@@ -745,6 +745,7 @@ document.getElementById("contraSort").addEventListener("change", () => {
 });
 
 document.getElementById("accountSelector").addEventListener("change", () => {
+  receiptsUnlocked = true
   expensePage = 1;
   receiptPage = 1;
   contraPage = 1;
