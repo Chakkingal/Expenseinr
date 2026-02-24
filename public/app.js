@@ -36,8 +36,29 @@ const datasetCache = {
 // RECEIPT LOCK
 // ==========================================================
 
+
 let receiptsUnlocked = false;
 const RECEIPT_PASSWORD = "1234";
+
+function lockReceipts() {
+  receiptsUnlocked = false;
+
+  const tbody = document.getElementById("receiptTable");
+  if (tbody) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="5" class="text-center">
+          🔒 Receipts locked. Click Unlock to view.
+        </td>
+      </tr>
+    `;
+  }
+}
+
+
+
+
+
 
 // added 23/02/2026
 
@@ -314,12 +335,10 @@ function fillDropdowns() {
 }
 
 function resetPagesAndUpdate() {
+  lockReceipts()
   expensePage = 1;
   receiptPage = 1;
   contraPage = 1;
-  // added 24-02-2026
-  receiptsUnlocked = false
-  // 
   updateDashboard();
 }
 
@@ -567,9 +586,7 @@ function updateContraTable() {
 // CHARTS (NET VALUES LIKE GOOGLE SHEETS)
 // ==========================================================
 function updateCharts() {
-  // added 24-02-2026
-    receiptsUnlocked = false 
-//  
+ 
   const monthTotals = {};
   expenseData.forEach(r => {
     const m = (r.Month || "").trim();
@@ -653,9 +670,7 @@ function updateCharts() {
 // UPDATE DASHBOARD
 // ==========================================================
 function updateDashboard() {
-  //  24-02-2026
-  receiptsUnlocked=false
-  // 
+  lockReceipts()
   updateSummary();
   updateModeBalances();
   updateExpenseTable();
@@ -671,11 +686,10 @@ function updateDashboard() {
 // LOAD DATA
 // ==========================================================
 async function loadAllData() {
+  lockReceipts()
   showLoadingUI();
   setControlsEnabled(false);
-  //  24-02-2026
-  receiptsUnlocked=false
-  // 
+
   document.getElementById("refreshSpinner").classList.remove("d-none");
 
   const selected = document.getElementById("accountSelector").value;
@@ -755,8 +769,7 @@ document.getElementById("contraSort").addEventListener("change", () => {
 });
 
 document.getElementById("accountSelector").addEventListener("change", () => {
-  receiptsUnlocked = true
-  expensePage = 1;
+   expensePage = 1;
   receiptPage = 1;
   contraPage = 1;
 
