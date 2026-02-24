@@ -317,6 +317,9 @@ function resetPagesAndUpdate() {
   expensePage = 1;
   receiptPage = 1;
   contraPage = 1;
+  // added 24-02-2026
+  receiptsUnlocked = false
+  // 
   updateDashboard();
 }
 
@@ -564,7 +567,9 @@ function updateContraTable() {
 // CHARTS (NET VALUES LIKE GOOGLE SHEETS)
 // ==========================================================
 function updateCharts() {
-
+  // added 24-02-2026
+    receiptsUnlocked = false 
+//  
   const monthTotals = {};
   expenseData.forEach(r => {
     const m = (r.Month || "").trim();
@@ -648,6 +653,9 @@ function updateCharts() {
 // UPDATE DASHBOARD
 // ==========================================================
 function updateDashboard() {
+  //  24-02-2026
+  receiptsUnlocked=false
+  // 
   updateSummary();
   updateModeBalances();
   updateExpenseTable();
@@ -665,7 +673,9 @@ function updateDashboard() {
 async function loadAllData() {
   showLoadingUI();
   setControlsEnabled(false);
-
+  //  24-02-2026
+  receiptsUnlocked=false
+  // 
   document.getElementById("refreshSpinner").classList.remove("d-none");
 
   const selected = document.getElementById("accountSelector").value;
