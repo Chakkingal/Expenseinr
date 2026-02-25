@@ -716,11 +716,11 @@ async function preloadDatasets() {
       ob: removeEmptyRows(results[7])
     };
 
-    console.log("Datasets preloaded");
+    // console.log("Datasets preloaded");
 
   } catch (err) {
 
-    console.error("Preload failed", err);
+    // console.error("Preload failed", err);
 
   }
 
