@@ -681,11 +681,56 @@ function updateDashboard() {
     updateCharts();
   }, 300);
 }
+// =========================================================
+// preload all data
+async function preloadDatasets() {
 
+  try {
+
+    const indiaExpense = parseCSV(datasets.INDIA.expenseCSV);
+    const indiaReceipt = parseCSV(datasets.INDIA.receiptsCSV);
+    const indiaContra = parseCSV(datasets.INDIA.contraCSV);
+    const indiaOB = parseCSV(datasets.INDIA.obCSV);
+
+    const uaeExpense = parseCSV(datasets.UAE.expenseCSV);
+    const uaeReceipt = parseCSV(datasets.UAE.receiptsCSV);
+    const uaeContra = parseCSV(datasets.UAE.contraCSV);
+    const uaeOB = parseCSV(datasets.UAE.obCSV);
+
+    const results = await Promise.all([
+      indiaExpense, indiaReceipt, indiaContra, indiaOB,
+      uaeExpense, uaeReceipt, uaeContra, uaeOB
+    ]);
+
+    datasetCache.INDIA = {
+      expense: removeEmptyRows(results[0]),
+      receipt: removeEmptyRows(results[1]),
+      contra: removeEmptyRows(results[2]),
+      ob: removeEmptyRows(results[3])
+    };
+
+    datasetCache.UAE = {
+      expense: removeEmptyRows(results[4]),
+      receipt: removeEmptyRows(results[5]),
+      contra: removeEmptyRows(results[6]),
+      ob: removeEmptyRows(results[7])
+    };
+
+    console.log("Datasets preloaded");
+
+  } catch (err) {
+
+    console.error("Preload failed", err);
+
+  }
+
+}
+// =========================================================
 // ==========================================================
 // LOAD DATA
 // ==========================================================
 async function loadAllData() {
+   receiptsUnlocked = false
   lockReceipts()
   showLoadingUI();
   setControlsEnabled(false);
@@ -769,6 +814,7 @@ document.getElementById("contraSort").addEventListener("change", () => {
 });
 
 document.getElementById("accountSelector").addEventListener("change", () => {
+   receiptsUnlocked = false
    expensePage = 1;
   receiptPage = 1;
   contraPage = 1;
@@ -1014,6 +1060,7 @@ window.unlockReceipts = function () {
 // ==========================================================
 // INITIAL LOAD
 // ==========================================================
+preloadDatasets()
 loadAllData();
 
 
